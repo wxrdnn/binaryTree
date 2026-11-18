@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <cstring>
 
-Error NewNode(Node **nodePtr, TreeElement_t data)
+Error NewNode(Node **nodePtr, NodeData_t data)
 {
     ASSERT(nodePtr);
 
@@ -29,8 +29,8 @@ void DeleteNode(Node *node)
     return;
 }
 
-Error NewTree(Tree **treePtr, TreeElement_t rootData, int (*comp)(const void *, const void *),
-              void (*nodeDataToStr)(const TreeElement_t data, char *const out, const size_t outSize))
+Error NewTree(Tree **treePtr, NodeData_t rootData, int (*comp)(const void *, const void *),
+              void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize))
 {
     ASSERT(treePtr);
     ASSERT(comp);
@@ -50,7 +50,7 @@ Error NewTree(Tree **treePtr, TreeElement_t rootData, int (*comp)(const void *, 
     return cgSuccessErrorStruct;
 }
 
-Error AddToTree(Tree *const tree, const TreeElement_t data)
+Error AddToTree(Tree *const tree, const NodeData_t data)
 {
     ASSERT(tree);
 
@@ -68,7 +68,7 @@ Error AddToTree(Tree *const tree, const TreeElement_t data)
 
     // fprintf(stderr, "DEBUG: AddToTree(): compRes = %d\n", compRes);
 
-    RETURN_ERROR_IF_FAIL(NewNode(compRes > 0 ? &prevOfFoundNode->left : &prevOfFoundNode->right, data));
+    RETURN_ERROR_IF_FAIL(NewNode(compRes > 0 ? &prevOfFoundNode->right : &prevOfFoundNode->left, data));
 
     return cgSuccessErrorStruct;
 }
@@ -94,7 +94,7 @@ void DeleteAllNodes(Node *root)
     return;
 }
 
-Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prevOfFoundNode)
+Node *FindInTree(Tree *const tree, const NodeData_t dataToSearch, Node **prevOfFoundNode)
 {
     ASSERT(tree);
     ASSERT(tree->root);
@@ -110,12 +110,12 @@ Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prev
         if (compRes > 0)
         {
             *prevOfFoundNode = curNode;
-            curNode = (*prevOfFoundNode)->left;
+            curNode = (*prevOfFoundNode)->right;
         }
         else if (compRes < 0)
         {
             *prevOfFoundNode = curNode;
-            curNode = (*prevOfFoundNode)->right;
+            curNode = (*prevOfFoundNode)->left;
         }
         else
         {
@@ -127,7 +127,7 @@ Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prev
 }
 
 Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t outSize,
-                void (*nodeDataToStr)(const TreeElement_t data, char *out, const size_t outSize))
+                void (*nodeDataToStr)(const NodeData_t data, char *out, const size_t outSize))
 {
     ASSERT(node);
     ASSERT(out);

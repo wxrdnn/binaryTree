@@ -1,4 +1,6 @@
-# Prerequisites
+logs
+
+#  Prerequisites
 *.d
 
 # Object files
