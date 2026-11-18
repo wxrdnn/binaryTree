@@ -34,6 +34,10 @@ void DeleteNode(Node *node);
 Error NewTree(Tree **treePtr, TreeElement_t rootData, int (*comp)(const void *, const void *),
               void (*nodeDataToStr)(const TreeElement_t data, char *const out, const size_t outSize));
 
+void DeleteTree(Tree *tree);
+
+void DeleteAllNodes(Node *root);
+
 Error AddToTree(Tree *const tree, const TreeElement_t data);
 
 Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prevOfFoundNode);

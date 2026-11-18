@@ -34,6 +34,7 @@ Error NewTree(Tree **treePtr, TreeElement_t rootData, int (*comp)(const void *, 
 {
     ASSERT(treePtr);
     ASSERT(comp);
+    ASSERT(nodeDataToStr);
 
     *treePtr = (Tree *)calloc(1, sizeof(Tree));
     ALLOCATION_CHECK(treePtr);
@@ -72,14 +73,31 @@ Error AddToTree(Tree *const tree, const TreeElement_t data)
     return cgSuccessErrorStruct;
 }
 
-Error DeleteTree(Tree *const tree) // TODO
+void DeleteTree(Tree *tree)
 {
     ASSERT(tree);
+
+    DeleteAllNodes(tree->root);
+    free(tree);
+}
+
+void DeleteAllNodes(Node *root)
+{
+    if (!root)
+    {
+        return;
+    }
+    DeleteAllNodes(root->left);
+    DeleteAllNodes(root->right);
+
+    DeleteNode(root);
+    return;
 }
 
 Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prevOfFoundNode)
 {
     ASSERT(tree);
+    ASSERT(tree->root);
     ASSERT(prevOfFoundNode);
 
     *prevOfFoundNode = tree->root;
@@ -87,7 +105,7 @@ Node *FindInTree(Tree *const tree, const TreeElement_t dataToSearch, Node **prev
 
     do
     {
-        int compRes = tree->comp(&dataToSearch, &(*prevOfFoundNode)->data);
+        int compRes = tree->comp(&dataToSearch, &curNode->data);
 
         if (compRes > 0)
         {
@@ -115,6 +133,7 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     ASSERT(out);
     ASSERT(curPtr);
     ASSERT(*curPtr);
+    ASSERT(nodeDataToStr);
     // static int i = 0;
     // static char *first_cur_ptr = curPtr;
     // if (i == 0)

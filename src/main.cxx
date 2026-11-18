@@ -7,6 +7,7 @@
     {                                                                                                                  \
         if (tree)                                                                                                      \
         {                                                                                                              \
+            DeleteTree(tree);                                                                                          \
         }                                                                                                              \
         return __exitCode;                                                                                             \
     }
@@ -46,7 +47,7 @@ int main()
 
 int IntComparator(const void *a, const void *b)
 {
-    return *(int *)a - *(int *)b;
+    return *(const int *)a - *(const int *)b;
 }
 
 void IntToStr(const TreeElement_t data, char *const out, const size_t outSize)
