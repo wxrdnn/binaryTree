@@ -4,7 +4,7 @@
 
 #include "errorHandle.h"
 #include <cstddef>
-typedef int NodeData_t;
+typedef char *NodeData_t;
 
 struct Node
 {

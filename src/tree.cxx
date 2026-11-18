@@ -134,21 +134,12 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     ASSERT(curPtr);
     ASSERT(*curPtr);
     ASSERT(nodeDataToStr);
-    // static int i = 0;
-    // static char *first_cur_ptr = curPtr;
-    // if (i == 0)
-    // {
-    //     first_cur_ptr = curPtr;
-    //     i++;
-    // }
+
     **curPtr = '(';
     ++*curPtr;
-    // fprintf(stderr, "\n\nstr = %s\n\n", first_cur_ptr);
-    // fprintf(stderr, "1 *curPtr = \'%c\'\n", *curPtr);
+
     nodeDataToStr(node->data, *curPtr, outSize - (*curPtr - out));
-    // fprintf(stderr, "2 *curPtr = \'%c\'\n", *curPtr);
     *curPtr += strlen(*curPtr);
-    // fprintf(stderr, "3 *curPtr = \'%c\'\n", *curPtr);
 
     // fprintf(
     //     stderr, "DEBUG: DumpNodes(): node(%p)->left = %p, node(%p)->right = %p\n", node, node->left, node,
@@ -158,9 +149,7 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
 
         // fprintf(stderr, "DEBUG: node(%p)->left(%p)->data = %d\n", node, node->left, node->left->data);
-        // fprintf(stderr, "*curPtr = \'%c\'\n", *curPtr);
         RETURN_ERROR_IF_FAIL(DumpNodes(node->left, out, curPtr, outSize, nodeDataToStr));
-        // fprintf(stderr, "\n\nstr = %s\n\n", first_cur_ptr);
     }
     else if (node->right)
     {
@@ -174,7 +163,6 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
         // fprintf(stderr, "DEBUG: node(%p)->right(%p)->data = %d\n", node, node->right, node->right->data);
         RETURN_ERROR_IF_FAIL(DumpNodes(node->right, out, curPtr, outSize, nodeDataToStr));
-        // fprintf(stderr, "\n\nstr = %s\n\n", first_cur_ptr);
     }
     else if (node->left)
     {
@@ -188,6 +176,5 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     **curPtr = ')';
     ++*curPtr;
     **curPtr = '\0';
-    // (0(1)(-1))
     return cgSuccessErrorStruct;
 }
