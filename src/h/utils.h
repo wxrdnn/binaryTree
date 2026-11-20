@@ -26,4 +26,8 @@ void DumpUnsignedIntArr(const unsigned *const arr, const size_t size);
 
 #define ARG_NAME_TO_STR(__x) #__x
 
+#define MIN(__a, __b) ((__a) < (__b) ? (__a) : (__b))
+
+#define MAX(__a, __b) ((__a) > (__b) ? (__a) : (__b))
+
 #endif

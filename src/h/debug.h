@@ -29,4 +29,11 @@
 
 #endif
 
+#define PRINTF_DEBUG(...)                                                                                              \
+    {                                                                                                                  \
+        fprintf(stderr, __YELLOW "DEBUG: %s:%d:%s(): ", __FILE__, __LINE__, __FUNCTION__);                             \
+        fprintf(stderr, __VA_ARGS__);                                                                                  \
+        fprintf(stderr, __RESET);                                                                                      \
+    }
+
 #endif

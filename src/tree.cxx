@@ -30,7 +30,8 @@ void DeleteNode(Node *node)
 }
 
 Error NewTree(Tree **treePtr, NodeData_t rootData, int (*comp)(const void *, const void *),
-              void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize))
+              void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize),
+              void (*DeleteNodeData)(NodeData_t data))
 {
     ASSERT(treePtr);
     ASSERT(comp);
@@ -42,8 +43,9 @@ Error NewTree(Tree **treePtr, NodeData_t rootData, int (*comp)(const void *, con
     RETURN_ERROR_IF_FAIL(NewNode(&(*treePtr)->root, rootData));
     (*treePtr)->root->_level = 0;
 
-    (*treePtr)->comp = comp;
-    (*treePtr)->nodeDataToStr = nodeDataToStr;
+    (*treePtr)->Comp = comp;
+    (*treePtr)->NodeDataToStr = nodeDataToStr;
+    (*treePtr)->DeleteNodeData = DeleteNodeData;
     (*treePtr)->elementAmount = 1;
     (*treePtr)->maxLevel = 0;
 
@@ -60,11 +62,11 @@ Error AddToTree(Tree *const tree, const NodeData_t data)
     if (foundNode)
     {
         char buf[cMaxErrorContextLen] = {};
-        tree->nodeDataToStr(foundNode->data, buf, cMaxErrorContextLen);
+        tree->NodeDataToStr(foundNode->data, buf, cMaxErrorContextLen);
         return CreateError(ecElementAlreadyExists, buf);
     }
 
-    int compRes = tree->comp(&data, &prevOfFoundNode->data);
+    int compRes = tree->Comp(&data, &prevOfFoundNode->data);
 
     // fprintf(stderr, "DEBUG: AddToTree(): compRes = %d\n", compRes);
 
@@ -77,19 +79,25 @@ void DeleteTree(Tree *tree)
 {
     ASSERT(tree);
 
-    DeleteAllNodes(tree->root);
+    DeleteAllNodes(tree->root, tree->DeleteNodeData);
     free(tree);
 }
 
-void DeleteAllNodes(Node *root)
+void DeleteAllNodes(Node *root, void (*DeleteNodeData)(NodeData_t))
 {
+    ASSERT(DeleteNodeData);
+
     if (!root)
     {
         return;
     }
-    DeleteAllNodes(root->left);
-    DeleteAllNodes(root->right);
+    DeleteAllNodes(root->left, DeleteNodeData);
+    DeleteAllNodes(root->right, DeleteNodeData);
 
+    // fprintf(stderr, "DEBUG: DeleteAllNodes(): root->data=<%s>\n", root->data);
+
+    PRINTF_DEBUG("root->data = <%s>\n", root->data);
+    DeleteNodeData(root->data);
     DeleteNode(root);
     return;
 }
@@ -105,7 +113,7 @@ Node *FindInTree(Tree *const tree, const NodeData_t dataToSearch, Node **prevOfF
 
     do
     {
-        int compRes = tree->comp(&dataToSearch, &curNode->data);
+        int compRes = tree->Comp(&dataToSearch, &curNode->data);
 
         if (compRes > 0)
         {
@@ -135,11 +143,19 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     ASSERT(*curPtr);
     ASSERT(nodeDataToStr);
 
+    // fprintf(stderr, "DEBUG: DumpNodes(): out = %p; *curPtr - out = %ld\n", out, *curPtr - out);
+    ASSERT(*curPtr >= out);
+    ASSERT(*curPtr - out < outSize);
+
     **curPtr = '(';
+    ++*curPtr;
+    **curPtr = ' ';
     ++*curPtr;
 
     nodeDataToStr(node->data, *curPtr, outSize - (*curPtr - out));
     *curPtr += strlen(*curPtr);
+    **curPtr = ' ';
+    ++*curPtr;
 
     // fprintf(
     //     stderr, "DEBUG: DumpNodes(): node(%p)->left = %p, node(%p)->right = %p\n", node, node->left, node,
@@ -155,7 +171,11 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
         **curPtr = '(';
         ++*curPtr;
+        **curPtr = ' ';
+        ++*curPtr;
         **curPtr = ')';
+        ++*curPtr;
+        **curPtr = ' ';
         ++*curPtr;
         **curPtr = '\0';
     }
@@ -168,12 +188,18 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
         **curPtr = '(';
         ++*curPtr;
+        **curPtr = ' ';
+        ++*curPtr;
         **curPtr = ')';
+        ++*curPtr;
+        **curPtr = ' ';
         ++*curPtr;
         **curPtr = '\0';
     }
 
     **curPtr = ')';
+    ++*curPtr;
+    **curPtr = ' ';
     ++*curPtr;
     **curPtr = '\0';
     return cgSuccessErrorStruct;

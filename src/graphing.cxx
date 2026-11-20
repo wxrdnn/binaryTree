@@ -18,7 +18,7 @@ Error BuildGraph(const Tree *const tree, FILE *const output)
             // "rank=same;\n"
     );
 
-    BuildNodes(tree->root, output, tree->nodeDataToStr);
+    BuildNodes(tree->root, output, tree->NodeDataToStr);
 
     fprintf(output, "}\n");
 

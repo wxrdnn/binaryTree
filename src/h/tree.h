@@ -19,8 +19,9 @@ struct Node
 struct Tree
 {
     Node *root;
-    int (*comp)(const void *, const void *);
-    void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize);
+    int (*Comp)(const void *, const void *);
+    void (*NodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize);
+    void (*DeleteNodeData)(NodeData_t data);
 
     // meta
     size_t elementAmount;
@@ -32,11 +33,12 @@ Error NewNode(Node **nodePtr, NodeData_t data);
 void DeleteNode(Node *node);
 
 Error NewTree(Tree **treePtr, NodeData_t rootData, int (*comp)(const void *, const void *),
-              void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize));
+              void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize),
+              void (*DeleteNodeData)(NodeData_t data));
 
 void DeleteTree(Tree *tree);
 
-void DeleteAllNodes(Node *root);
+void DeleteAllNodes(Node *root, void (*DeleteNodeData)(NodeData_t));
 
 Error AddToTree(Tree *const tree, const NodeData_t data);
 

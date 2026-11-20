@@ -3,6 +3,7 @@
 #include "h/graphing.h"
 #include "h/tree.h"
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
 #define SHUTDOWN(__exitCode)                                                                                           \
@@ -30,17 +31,18 @@ int IntComparator(const void *a, const void *b);
 int StrComparator(const void *a, const void *b);
 void IntToStr(const NodeData_t data, char *const out, const size_t outSize);
 void StrToStr(const NodeData_t data, char *const out, const size_t outSize);
+void DeleteStr(NodeData_t data);
 
 int main()
 {
     Tree *tree = NULL;
-    SHUTDOWN_IF_ERROR_FAIL(NewTree(&tree, "123", StrComparator, StrToStr));
-    SHUTDOWN_IF_ERROR_FAIL(AddToTree(tree, "234"));
-    SHUTDOWN_IF_ERROR_FAIL(AddToTree(tree, "012"));
+    SHUTDOWN_IF_ERROR_FAIL(NewTree(&tree, "бм", StrComparator, StrToStr, DeleteStr));
+    SHUTDOWN_IF_ERROR_FAIL(AddToTree(tree, "биба"));
+    SHUTDOWN_IF_ERROR_FAIL(AddToTree(tree, "боба"));
 
     char buf[1024] = {};
     char *cur = buf;
-    SHUTDOWN_IF_ERROR_FAIL(DumpNodes(tree->root, buf, &cur, 1024, tree->nodeDataToStr));
+    SHUTDOWN_IF_ERROR_FAIL(DumpNodes(tree->root, buf, &cur, 1024, tree->NodeDataToStr));
     fprintf(stderr, "DumpNodes: %s\n", buf);
 
     FILE *graphOutput = fopen(OUTPUT_FILE_NAME, "w");
@@ -75,5 +77,13 @@ void StrToStr(const NodeData_t data, char *const out, const size_t outSize)
 {
     ASSERT(out);
     strncpy(out, data, outSize - 1);
+    return;
+}
+
+void DeleteStr(NodeData_t data)
+{
+    ASSERT(data);
+
+    // free(data);
     return;
 }
