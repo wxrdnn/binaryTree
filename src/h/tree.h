@@ -6,6 +6,12 @@
 #include <cstddef>
 typedef char *NodeData_t;
 
+enum TreeChildSide
+{
+    tcsLeft = 0,
+    tcsRight = 1
+};
+
 struct Node
 {
     Node *left;
@@ -19,7 +25,7 @@ struct Node
 struct Tree
 {
     Node *root;
-    int (*Comp)(const void *, const void *);
+    // int (*Comp)(const void *, const void *);
     void (*NodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize);
     void (*DeleteNodeData)(NodeData_t data);
 
@@ -30,9 +36,11 @@ struct Tree
 
 Error NewNode(Node **nodePtr, NodeData_t data);
 
+void AddToNode(Node *root, NodeData_t data, TreeChildSide childSide);
+
 void DeleteNode(Node *node);
 
-Error NewTree(Tree **treePtr, NodeData_t rootData, int (*comp)(const void *, const void *),
+Error NewTree(Tree **treePtr, NodeData_t rootData,
               void (*nodeDataToStr)(const NodeData_t data, char *const out, const size_t outSize),
               void (*DeleteNodeData)(NodeData_t data));
 
@@ -40,7 +48,7 @@ void DeleteTree(Tree *tree);
 
 void DeleteAllNodes(Node *root, void (*DeleteNodeData)(NodeData_t));
 
-Error AddToTree(Tree *const tree, const NodeData_t data);
+// Error AddToTree(Tree *const tree, const NodeData_t data);
 
 Node *FindInTree(Tree *const tree, const NodeData_t dataToSearch, Node **prevOfFoundNode);
 

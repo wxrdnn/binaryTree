@@ -16,6 +16,10 @@ bool ReplaceNewLineCharWithNullTerminator(char *const s);
 
 void ReplaceAllNewLineCharWithNullTerminator(char *s);
 
+bool ReplaceSpaceCharWithNullTerminator(char *const s);
+
+void ReplaceAllSpaceCharWithNullTerminator(char *s);
+
 void ClearBuffer();
 
 bool FileIsEmpty(FILE *const fp);

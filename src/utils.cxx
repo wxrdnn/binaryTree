@@ -53,6 +53,25 @@ void ReplaceAllNewLineCharWithNullTerminator(char *s)
     return;
 }
 
+bool ReplaceSpaceCharWithNullTerminator(char *const s)
+{
+    assert(s != NULL);
+    char *p = strchr(s, ' ');
+    if (p)
+    {
+        *p = '\0';
+        return true;
+    }
+    return false;
+}
+
+void ReplaceAllSpaceCharWithNullTerminator(char *s)
+{
+    while (ReplaceSpaceCharWithNullTerminator(s))
+        s += strlen(s) + 1;
+    return;
+}
+
 void ClearBuffer()
 {
     int c = 0;
