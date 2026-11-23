@@ -4,6 +4,6 @@
 
 #include <cstddef>
 
-const size_t cNodeDataStrMaxSize = 1024;
+const size_t cNodeDataStrMaxSize = 128;
 
 #endif

@@ -59,6 +59,7 @@ void ReplaceAllChars(char *s, char target, char replacement)
 void ClearBuffer()
 {
     int c = 0;
+    // while ((c = getchar()) != '\n' && c != EOF)
     while ((c = getchar()) != '\n' && c != EOF)
         ;
     return;

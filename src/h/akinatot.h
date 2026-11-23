@@ -4,6 +4,6 @@
 
 #include "tree.h"
 
-TreeChildSide AskQuestion(Node *const root);
+Error AskQuestions(Node *const root);
 
 #endif

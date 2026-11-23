@@ -1,3 +1,4 @@
+#include "h/akinatot.h"
 #include "h/debug.h"
 #include "h/errorHandle.h"
 #include "h/graphing.h"
@@ -6,6 +7,7 @@
 #include "h/utils.h"
 #include <cerrno>
 #include <cstddef>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 #include <fcntl.h>
@@ -41,7 +43,7 @@ int IntComparator(const void *a, const void *b);
 void IntToStr(const NodeData_t data, char *const out, const size_t outSize);
 void StrToStr(const NodeData_t data, char *const out, const size_t outSize);
 
-Error _CreateAndLoadTree(Tree **tree, char *inputBuf);
+Error _CreateAndLoadTree(Tree **tree, char **inputBuf);
 
 Error _DumpTree(Tree *tree, FILE *output);
 
@@ -52,7 +54,17 @@ int main()
     Tree *tree = NULL;
     char *inputBuf = NULL;
 
-    SHUTDOWN_IF_ERROR_FAIL(_CreateAndLoadTree(&tree, inputBuf));
+    SHUTDOWN_IF_ERROR_FAIL(_CreateAndLoadTree(&tree, &inputBuf));
+
+    AskQuestions(tree->root);
+
+    FILE *dumpfp = fopen("akinatorTree.txt", "w");
+    if (!dumpfp)
+    {
+        SHUTDOWN_IF_ERROR_FAIL(CreateError(TranslateErrnoCode(errno), "akinatorTree.txt"));
+    }
+    SHUTDOWN_IF_ERROR_FAIL(_DumpTree(tree, dumpfp));
+    fclose(dumpfp);
 
     FILE *graphOutput = fopen(OUTPUT_FILE_NAME, "w");
     BuildGraph(tree, graphOutput);
@@ -90,7 +102,7 @@ void DeleteStr(NodeData_t data)
     return;
 }
 
-Error _CreateAndLoadTree(Tree **tree, char *inputBuf)
+Error _CreateAndLoadTree(Tree **tree, char **inputBuf)
 {
     ASSERT(tree);
 
@@ -106,13 +118,13 @@ Error _CreateAndLoadTree(Tree **tree, char *inputBuf)
     size_t inputBufSize = 0;
     RETURN_ERROR_IF_FAIL(GetFileSize("akinatorTree.txt", &inputBufSize));
 
-    RETURN_ERROR_IF_FAIL(CreateTextBuf(inputBufSize + 1, &inputBuf));
+    RETURN_ERROR_IF_FAIL(CreateTextBuf(inputBufSize + 1, inputBuf));
 
-    RETURN_ERROR_IF_FAIL(LoadText(inputfd, inputBuf, inputBufSize));
+    RETURN_ERROR_IF_FAIL(LoadText(inputfd, *inputBuf, inputBufSize));
 
-    ReplaceAllChars(inputBuf, '|', '\0');
+    ReplaceAllChars(*inputBuf, '|', '\0');
 
-    RETURN_ERROR_IF_FAIL(LoadStrTreeFromBuf(*tree, inputBuf));
+    RETURN_ERROR_IF_FAIL(LoadStrTreeFromBuf(*tree, *inputBuf));
 
     return cgSuccessErrorStruct;
 }
