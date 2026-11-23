@@ -1,4 +1,5 @@
 #include "h/utils.h"
+#include "h/debug.h"
 #include "string.h"
 #include <cassert>
 #include <cstddef>
@@ -34,40 +35,23 @@ long CountLinesOfFile(FILE *const fp)
     return count;
 }
 
-bool ReplaceNewLineCharWithNullTerminator(char *const s)
+bool ReplaceChar(char *s, char target, char replacement)
 {
-    assert(s != NULL);
-    char *p = strchr(s, '\n');
+    ASSERT(s);
+    char *p = strchr(s, target);
     if (p)
     {
-        *p = '\0';
+        *p = replacement;
         return true;
     }
     return false;
 }
 
-void ReplaceAllNewLineCharWithNullTerminator(char *s)
+void ReplaceAllChars(char *s, char target, char replacement)
 {
-    while (ReplaceNewLineCharWithNullTerminator(s))
-        s += strlen(s) + 1;
-    return;
-}
+    ASSERT(s);
 
-bool ReplaceSpaceCharWithNullTerminator(char *const s)
-{
-    assert(s != NULL);
-    char *p = strchr(s, ' ');
-    if (p)
-    {
-        *p = '\0';
-        return true;
-    }
-    return false;
-}
-
-void ReplaceAllSpaceCharWithNullTerminator(char *s)
-{
-    while (ReplaceSpaceCharWithNullTerminator(s))
+    while (ReplaceChar(s, target, replacement))
         s += strlen(s) + 1;
     return;
 }

@@ -12,13 +12,9 @@ void Swap(double *const a, double *const b);
 
 long CountLinesOfFile(FILE *const fp);
 
-bool ReplaceNewLineCharWithNullTerminator(char *const s);
+bool ReplaceChar(char *s, char target, char replacement);
 
-void ReplaceAllNewLineCharWithNullTerminator(char *s);
-
-bool ReplaceSpaceCharWithNullTerminator(char *const s);
-
-void ReplaceAllSpaceCharWithNullTerminator(char *s);
+void ReplaceAllChars(char *s, char target, char replacement);
 
 void ClearBuffer();
 

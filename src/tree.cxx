@@ -151,12 +151,12 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
 
     **curPtr = '(';
     ++*curPtr;
-    **curPtr = ' ';
+    **curPtr = '|';
     ++*curPtr;
 
     nodeDataToStr(node->data, *curPtr, outSize - (*curPtr - out));
     *curPtr += strlen(*curPtr);
-    **curPtr = ' ';
+    **curPtr = '|';
     ++*curPtr;
 
     // fprintf(
@@ -173,11 +173,11 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
         **curPtr = '(';
         ++*curPtr;
-        **curPtr = ' ';
+        **curPtr = '|';
         ++*curPtr;
         **curPtr = ')';
         ++*curPtr;
-        **curPtr = ' ';
+        **curPtr = '|';
         ++*curPtr;
         **curPtr = '\0';
     }
@@ -190,18 +190,18 @@ Error DumpNodes(const Node *node, char *const out, char **curPtr, const size_t o
     {
         **curPtr = '(';
         ++*curPtr;
-        **curPtr = ' ';
+        **curPtr = '|';
         ++*curPtr;
         **curPtr = ')';
         ++*curPtr;
-        **curPtr = ' ';
+        **curPtr = '|';
         ++*curPtr;
         **curPtr = '\0';
     }
 
     **curPtr = ')';
     ++*curPtr;
-    **curPtr = ' ';
+    **curPtr = '|';
     ++*curPtr;
     **curPtr = '\0';
     return cgSuccessErrorStruct;

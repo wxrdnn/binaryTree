@@ -3,15 +3,23 @@
 #include "h/graphing.h"
 #include "h/io.h"
 #include "h/tree.h"
-#include <cstdio>
+#include "h/utils.h"
+#include <cerrno>
+#include <cstddef>
 #include <cstdlib>
 #include <cstring>
+#include <fcntl.h>
+#include <unistd.h>
 
 #define SHUTDOWN(__exitCode)                                                                                           \
     {                                                                                                                  \
         if (tree)                                                                                                      \
         {                                                                                                              \
             DeleteTree(tree);                                                                                          \
+        }                                                                                                              \
+        if (inputBuf)                                                                                                  \
+        {                                                                                                              \
+            free(inputBuf);                                                                                            \
         }                                                                                                              \
         return __exitCode;                                                                                             \
     }
@@ -29,40 +37,29 @@
 #define OUTPUT_FILE_NAME "../logs/" __DATE__ "_" __TIME__ ".gv"
 
 int IntComparator(const void *a, const void *b);
+
 void IntToStr(const NodeData_t data, char *const out, const size_t outSize);
 void StrToStr(const NodeData_t data, char *const out, const size_t outSize);
+
+Error _CreateAndLoadTree(Tree **tree, char *inputBuf);
+
+Error _DumpTree(Tree *tree, FILE *output);
+
 void DeleteStr(NodeData_t data);
 
 int main()
 {
     Tree *tree = NULL;
-    SHUTDOWN_IF_ERROR_FAIL(NewTree(&tree, "root", StrToStr, DeleteStr));
+    char *inputBuf = NULL;
 
-    AddToNode(tree->root, "left", tcsLeft);
-    // AddToNode(tree->root, "right", tcsRight);
-
-    // int inputfd = open();
-    // SHUTDOWN_IF_ERROR_FAIL(LoadStrTreeFromBuf(tree, char *const buf));
-
-    char buf[1024] = {};
-    strcat(buf, "( root ( l ( lr ) ( ) ) ( r ) ) ");
-    // char *cur = buf;
-    // SHUTDOWN_IF_ERROR_FAIL(DumpNodes(tree->root, buf, &cur, 1024, tree->NodeDataToStr));
-    fprintf(stderr, "DumpNodes: %s\n", buf);
-
-    Tree *newTree = NULL;
-    SHUTDOWN_IF_ERROR_FAIL(NewTree(&newTree, "", StrToStr, DeleteStr));
-    SHUTDOWN_IF_ERROR_FAIL(LoadStrTreeFromBuf(newTree, buf));
+    SHUTDOWN_IF_ERROR_FAIL(_CreateAndLoadTree(&tree, inputBuf));
 
     FILE *graphOutput = fopen(OUTPUT_FILE_NAME, "w");
-    BuildGraph(newTree, graphOutput);
+    BuildGraph(tree, graphOutput);
     fclose(graphOutput);
 
     int status = system("dot -Tpng \"" OUTPUT_FILE_NAME "\" -o \"" OUTPUT_FILE_NAME ".png\"");
 
-    // fprintf(stderr, "Left = %p, Right = %p\n", tree->root->left, tree->root->right);
-
-    DeleteTree(newTree);
     SHUTDOWN(ecSuccess);
 }
 
@@ -91,4 +88,44 @@ void DeleteStr(NodeData_t data)
 
     // free(data);
     return;
+}
+
+Error _CreateAndLoadTree(Tree **tree, char *inputBuf)
+{
+    ASSERT(tree);
+
+    int inputfd = open("akinatorTree.txt", O_RDONLY);
+
+    RETURN_ERROR_IF_FAIL(NewTree(tree, "root", StrToStr, DeleteStr));
+
+    if (inputfd == 0)
+    {
+        return CreateError(TranslateErrnoCode(errno), "akinatorTree.txt");
+    }
+
+    size_t inputBufSize = 0;
+    RETURN_ERROR_IF_FAIL(GetFileSize("akinatorTree.txt", &inputBufSize));
+
+    RETURN_ERROR_IF_FAIL(CreateTextBuf(inputBufSize + 1, &inputBuf));
+
+    RETURN_ERROR_IF_FAIL(LoadText(inputfd, inputBuf, inputBufSize));
+
+    ReplaceAllChars(inputBuf, '|', '\0');
+
+    RETURN_ERROR_IF_FAIL(LoadStrTreeFromBuf(*tree, inputBuf));
+
+    return cgSuccessErrorStruct;
+}
+
+Error _DumpTree(Tree *tree, FILE *output)
+{
+    ASSERT(tree);
+    ASSERT(output);
+
+    char dumpBuf[1024] = {};
+    char *cur = dumpBuf;
+    RETURN_ERROR_IF_FAIL(DumpNodes(tree->root, dumpBuf, &cur, 1024, tree->NodeDataToStr));
+    fprintf(output, "%s\n", dumpBuf);
+
+    return cgSuccessErrorStruct;
 }

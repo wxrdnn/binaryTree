@@ -9,7 +9,7 @@
 Error HandleError(Error error)
 {
     assert(error.context != NULL);
-    ReplaceNewLineCharWithNullTerminator(error.context);
+    ReplaceAllChars(error.context, '\n', '\0');
     switch (error.exitCode)
     {
     case ecSuccess:

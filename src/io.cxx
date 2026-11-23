@@ -3,8 +3,9 @@
 #include "h/errorHandle.h"
 #include "h/tree.h"
 #include "h/utils.h"
-#include <cstdio>
 #include <cstring>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #define SWITCH_SIDE(__curSide)                                                                                         \
     {                                                                                                                  \
@@ -18,19 +19,19 @@
         }                                                                                                              \
     }
 
-Error LoadStrTreeFromBuf(Tree *const tree, char *buf)
+Error LoadStrTreeFromBuf(Tree *const tree, const char *buf)
 {
     ASSERT(tree);
     ASSERT(buf);
 
-    ReplaceAllSpaceCharWithNullTerminator(buf);
+    // ReplaceAllSpaceCharWithNullTerminator(buf);
     // (\0бм\0(\0биба\0)\0(\0боба\0)\0)\0\0
 
-    char **ptr = &buf;
+    const char **ptr = &buf;
     // PRINTF_DEBUG("ptr = <%s>\n", ptr);
     *ptr += strlen(*ptr) + 1;
     DeleteNode(tree->root);
-    RETURN_ERROR_IF_FAIL(NewNode(&tree->root, *ptr));
+    RETURN_ERROR_IF_FAIL(NewNode(&tree->root, (char *)*ptr));
     // PRINTF_DEBUG("ptr = <%s>\n", ptr);
     *ptr += strlen(*ptr) + 1;
 
@@ -59,7 +60,7 @@ Error LoadStrTreeFromBuf(Tree *const tree, char *buf)
     //     return CreateError(ecUnexpectedFailure, "");
 }
 
-Error LoadNodesFromStr(Node *const root, char **ptr, TreeChildSide curSide) // FIXME !!!
+Error LoadNodesFromStr(Node *const root, const char **ptr, TreeChildSide curSide)
 {
     ASSERT(root);
     ASSERT(ptr);
@@ -78,12 +79,11 @@ Error LoadNodesFromStr(Node *const root, char **ptr, TreeChildSide curSide) // F
         if (*(*ptr + 2) == ')')
         {
             *ptr += 4;
-            *newNodePlace = NULL;
         }
         else
         {
             *ptr += strlen(*ptr) + 1;
-            RETURN_ERROR_IF_FAIL(NewNode(newNodePlace, *ptr));
+            RETURN_ERROR_IF_FAIL(NewNode(newNodePlace, (char *)*ptr));
             *ptr += strlen(*ptr) + 1;
 
             RETURN_ERROR_IF_FAIL(LoadNodesFromStr(*newNodePlace, ptr, tcsLeft));
@@ -108,4 +108,47 @@ Error LoadNodesFromStr(Node *const root, char **ptr, TreeChildSide curSide) // F
     default:
         return CreateError(ecParsingFailed, *ptr);
     }
+}
+
+Error GetFileSize(const char *const path, size_t *size)
+{
+    ASSERT(path);
+    ASSERT(size);
+
+    struct stat buf = {};
+    int errnoCode = stat(path, &buf);
+    Error error = CreateError(TranslateErrnoCode(errnoCode), path);
+    *size = (size_t)buf.st_size;
+    return error;
+}
+
+Error LoadText(const int fd, char *const textBuf, const size_t fileSize) // needs textBuf size of <fileSize + 1>
+{
+    ASSERT(textBuf);
+
+    long int numberRead = read(fd, textBuf, fileSize);
+    Error error = CreateError(ecSuccess, "");
+    if (numberRead != (long int)fileSize)
+    {
+        error.exitCode = ecCantReadFile;
+        return error;
+    }
+
+    textBuf[fileSize] = '\0';
+
+    return error;
+}
+
+Error CreateTextBuf(const size_t size, char **textBuf)
+{
+    ASSERT(textBuf);
+
+    *textBuf = (char *)calloc(size, sizeof(char));
+    Error error = CreateError(ecSuccess, "");
+    if (!*textBuf)
+    {
+        error = CreateError(ecCantAllocateMemory, "text buffer");
+        return error;
+    }
+    return error;
 }
